@@ -1,0 +1,57 @@
+<div class="login-bg d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h3 class="fw-bold text-dark">Antivirus Dashboard</h3>
+                            <p class="text-muted">Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+                        </div>
+                        
+                        {{#if error}}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            {{error}}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {{/if}}
+                        
+                        <form action="/auth/login" method="POST" id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Foydalanuvchi nomi
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Parol
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-2" id="loginBtn">
+                                <i class="fas fa-sign-in-alt me-2" id="loginIcon"></i><span id="loginText">Kirish</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const loginBtn = document.getElementById('loginBtn');
+    const loginIcon = document.getElementById('loginIcon');
+    const loginText = document.getElementById('loginText');
+    
+    loginBtn.disabled = true;
+    loginIcon.className = 'fas fa-spinner fa-spin me-2';
+    loginText.style.display = 'none';
+});
+</script> 

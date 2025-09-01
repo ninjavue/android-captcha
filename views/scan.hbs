@@ -1,0 +1,386 @@
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                    <i class="fas fa-shield-alt fa-2x text-white mb-2"></i>
+                    <h5 class="text-white">Antivirus Dashboard</h5>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/hashes">
+                            <i class="fas fa-list me-2"></i>
+                            Hashlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" href="/scan">
+                            <i class="fas fa-search me-2"></i>
+                            Fayl tekshirish
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/settings">
+                            <i class="fas fa-cog me-2"></i>
+                            Sozlamalar
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr class="text-white">
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/auth/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Chiqish
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-search me-2"></i>
+                    Fayl va URL Tekshirish
+                </h1>
+            </div>
+
+            <!-- File Scanner Section -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-file-upload me-2"></i>
+                                Fayl Tekshirish
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="fileScanForm" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="scanFile" class="form-label">Tekshirish uchun fayl tanlang</label>
+                                    <input type="file" class="form-control" id="scanFile" name="scanFile" required>
+                                    <div class="form-text">Maksimal fayl hajmi: 32MB</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="scanBtn">
+                                    <i class="fas fa-search me-2" id="scanIcon"></i><span id="scanText">Tekshirishni boshlash</span>
+                                </button>
+                            </form>
+                            
+                            <!-- Scan Progress -->
+                            <div id="scanProgress" class="mt-3" style="display: none;">
+                                <div class="progress mb-2" style="height: 25px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
+                                         role="progressbar" 
+                                         style="width: 0%; font-size: 12px; line-height: 25px; font-weight: bold;" 
+                                         id="scanProgressBar">0%</div>
+                                </div>
+                                <div class="text-muted small" id="scanProgressText">Fayl yuklanmoqda...</div>
+                            </div>
+                            
+                            <!-- Scan Results -->
+                            <div id="scanResults" class="mt-3" style="display: none;">
+                                <div class="alert" id="scanResultAlert">
+                                    <h6 id="scanResultTitle"></h6>
+                                    <div id="scanResultDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-link me-2"></i>
+                                URL Tekshirish
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="urlScanForm">
+                                <div class="mb-3">
+                                    <label for="scanUrl" class="form-label">Tekshirish uchun URL kiriting</label>
+                                    <input type="url" class="form-control" id="scanUrl" name="scanUrl" 
+                                           placeholder="https://example.com" required>
+                                    <div class="form-text">To'liq URL manzilini kiriting</div>
+                                </div>
+                                <button type="submit" class="btn btn-warning" id="urlScanBtn">
+                                    <i class="fas fa-search me-2" id="urlScanIcon"></i><span id="urlScanText">URL tekshirish</span>
+                                </button>
+                            </form>
+                            
+                            <div id="urlScanProgress" class="mt-3" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm text-warning me-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="text-muted small">URL tekshirilmoqda...</span>
+                                </div>
+                            </div>
+                            
+                            <div id="urlScanResults" class="mt-3" style="display: none;">
+                                <div class="alert" id="urlScanResultAlert">
+                                    <h6 id="urlScanResultTitle"></h6>
+                                    <div id="urlScanResultDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-history me-2"></i>
+                                So'nggi Tekshirishlar
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="scanHistoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Fayl/URL</th>
+                                            <th>Hash</th>
+                                            <th>Natija</th>
+                                            <th>Vaqt</th>
+                                            <th>Amallar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="scanHistoryTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.getElementById('fileScanForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const fileInput = document.getElementById('scanFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Iltimos, fayl tanlang!');
+        return;
+    }
+    
+    if (file.size > 32 * 1024 * 1024) {
+        alert('Fayl hajmi 32MB dan katta bo\'lishi mumkin emas!');
+        return;
+    }
+    
+    formData.append('scanFile', file);
+    
+    const scanBtn = document.getElementById('scanBtn');
+    const scanIcon = document.getElementById('scanIcon');
+    const scanText = document.getElementById('scanText');
+    const scanProgress = document.getElementById('scanProgress');
+    const scanResults = document.getElementById('scanResults');
+    
+    scanBtn.disabled = true;
+    scanIcon.className = 'fas fa-spinner fa-spin me-2';
+    scanText.textContent = 'Tekshirilmoqda...';
+    scanProgress.style.display = 'block';
+    scanResults.style.display = 'none';
+    
+    try {
+        const response = await fetch('/api/scan/file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showScanResult(result.data, 'file');
+        } else {
+            showScanError(result.message);
+        }
+    } catch (error) {
+        showScanError('Tekshirishda xatolik yuz berdi: ' + error.message);
+    } finally {
+        scanBtn.disabled = false;
+        scanIcon.className = 'fas fa-search me-2';
+        scanText.textContent = 'Tekshirishni boshlash';
+        scanProgress.style.display = 'none';
+    }
+});
+
+document.getElementById('urlScanForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const url = document.getElementById('scanUrl').value.trim();
+    
+    if (!url) {
+        alert('Iltimos, URL kiriting!');
+        return;
+    }
+    
+    const urlScanBtn = document.getElementById('urlScanBtn');
+    const urlScanIcon = document.getElementById('urlScanIcon');
+    const urlScanText = document.getElementById('urlScanText');
+    const urlScanProgress = document.getElementById('urlScanProgress');
+    const urlScanResults = document.getElementById('urlScanResults');
+    
+    urlScanBtn.disabled = true;
+    urlScanIcon.className = 'fas fa-spinner fa-spin me-2';
+    urlScanText.textContent = 'Tekshirilmoqda...';
+    urlScanProgress.style.display = 'block';
+    urlScanResults.style.display = 'none';
+    
+    try {
+        const response = await fetch('/api/scan/url', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: url })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showScanResult(result.data, 'url');
+        } else {
+            showScanError(result.message, 'url');
+        }
+    } catch (error) {
+        showScanError('URL tekshirishda xatolik yuz berdi: ' + error.message, 'url');
+    } finally {
+        urlScanBtn.disabled = false;
+        urlScanIcon.className = 'fas fa-search me-2';
+        urlScanText.textContent = 'URL tekshirish';
+        urlScanProgress.style.display = 'none';
+    }
+});
+
+function showScanResult(data, type) {
+    const resultsDiv = type === 'url' ? document.getElementById('urlScanResults') : document.getElementById('scanResults');
+    const alertDiv = type === 'url' ? document.getElementById('urlScanResultAlert') : document.getElementById('scanResultAlert');
+    const titleDiv = type === 'url' ? document.getElementById('urlScanResultTitle') : document.getElementById('scanResultTitle');
+    const detailsDiv = type === 'url' ? document.getElementById('urlScanResultDetails') : document.getElementById('scanResultDetails');
+    
+    let alertClass = '';
+    let title = '';
+    let details = '';
+    
+    if (data.malicious) {
+        alertClass = 'alert-danger';
+        title = '<i class="fas fa-exclamation-triangle me-2"></i>Zararli topildi!';
+        details = `
+            <p><strong>Hash:</strong> <code>${data.hash || 'N/A'}</code></p>
+            <p><strong>VirusTotal natijasi:</strong> ${data.vtResult || 'N/A'}</p>
+            <p><strong>Xavf darajasi:</strong> ${data.threatLevel || 'Yuqori'}</p>
+            ${data.addedToDatabase ? '<p class="text-success"><i class="fas fa-check me-1"></i>Hash bazaga qo\'shildi</p>' : ''}
+        `;
+    } else {
+        alertClass = 'alert-success';
+        title = '<i class="fas fa-check-circle me-2"></i>Xavfsiz';
+        details = `
+            <p><strong>Hash:</strong> <code>${data.hash || 'N/A'}</code></p>
+            <p><strong>VirusTotal natijasi:</strong> ${data.vtResult || 'N/A'}</p>
+            <p><strong>Xavf darajasi:</strong> ${data.threatLevel || 'Past'}</p>
+        `;
+    }
+    
+    alertDiv.className = 'alert ' + alertClass;
+    titleDiv.innerHTML = title;
+    detailsDiv.innerHTML = details;
+    resultsDiv.style.display = 'block';
+    
+    loadScanHistory();
+}
+
+function showScanError(message, type = 'file') {
+    const resultsDiv = type === 'url' ? document.getElementById('urlScanResults') : document.getElementById('scanResults');
+    const alertDiv = type === 'url' ? document.getElementById('urlScanResultAlert') : document.getElementById('scanResultAlert');
+    const titleDiv = type === 'url' ? document.getElementById('urlScanResultTitle') : document.getElementById('scanResultTitle');
+    const detailsDiv = type === 'url' ? document.getElementById('urlScanResultDetails') : document.getElementById('scanResultDetails');
+    
+    alertDiv.className = 'alert alert-danger';
+    titleDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Xatolik';
+    detailsDiv.innerHTML = '<p>' + message + '</p>';
+    resultsDiv.style.display = 'block';
+}
+
+async function loadScanHistory() {
+    try {
+        const response = await fetch('/api/scan/history');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateScanHistoryTable(data.data);
+        }
+    } catch (error) {
+        console.error('Scan history yuklashda xatolik:', error);
+    }
+}
+
+function updateScanHistoryTable(history) {
+    const tbody = document.getElementById('scanHistoryTableBody');
+    tbody.innerHTML = '';
+    
+    history.forEach(function(item) {
+        const row = document.createElement('tr');
+        const statusClass = item.malicious ? 'text-danger' : 'text-success';
+        const statusIcon = item.malicious ? 'fa-exclamation-triangle' : 'fa-check-circle';
+        
+        row.innerHTML = `
+            <td>${item.filename || item.url}</td>
+            <td><code>${item.hash || 'N/A'}</code></td>
+            <td><i class="fas ${statusIcon} ${statusClass}"></i> ${item.malicious ? 'Zararli' : 'Xavfsiz'}</td>
+            <td>${formatDate(item.scannedAt)}</td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="viewScanDetails('${item._id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function viewScanDetails(scanId) {
+    alert('Tekshirish tafsilotlari: ' + scanId);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('uz-UZ', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadScanHistory();
+});
+</script> 

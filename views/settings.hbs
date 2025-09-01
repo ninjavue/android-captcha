@@ -1,0 +1,152 @@
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                    <i class="fas fa-shield-alt fa-2x text-white mb-2"></i>
+                    <h5 class="text-white">Antivirus Dashboard</h5>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/hashes">
+                            <i class="fas fa-list me-2"></i>
+                            Hashlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/scan">
+                            <i class="fas fa-search me-2"></i>
+                            Fayl tekshirish
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" href="/settings">
+                            <i class="fas fa-cog me-2"></i>
+                            Sozlamalar
+                        </a>
+                    </li>
+                </ul>
+                <hr class="text-white">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/auth/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Chiqish
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-cog me-2"></i>
+                    Sozlamalar
+                </h1>
+            </div>
+
+            {{#if passwordChangeRequired}}
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    Siz standart parol bilan tizimga kirdingiz. Iltimos, xavfsizlik uchun parolingizni o‘zgartiring!
+                </div>
+            </div>
+            {{/if}}
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-key me-2"></i>
+                                Admin parolini o‘zgartirish
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="changePasswordForm">
+                                <div class="mb-3">
+                                    <label for="oldPassword" class="form-label">Eski parol</label>
+                                    <input type="password" class="form-control" id="oldPassword" name="oldPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">Yangi parol</label>
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Yangi parolni tasdiqlang</label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required minlength="6">
+                                </div>
+                                <button type="submit" class="btn btn-success" id="changePasswordBtn">
+                                    <i class="fas fa-save me-2" id="changePasswordIcon"></i>
+                                    <span id="changePasswordText">Saqlash</span>
+                                </button>
+                            </form>
+                            <div id="changePasswordResult" class="mt-3" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const oldPassword = document.getElementById('oldPassword').value.trim();
+    const newPassword = document.getElementById('newPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+    const btn = document.getElementById('changePasswordBtn');
+    const icon = document.getElementById('changePasswordIcon');
+    const text = document.getElementById('changePasswordText');
+    const resultDiv = document.getElementById('changePasswordResult');
+
+    // Loading state
+    btn.disabled = true;
+    icon.className = 'fas fa-spinner fa-spin me-2';
+    text.textContent = 'Saqlanmoqda...';
+    resultDiv.style.display = 'none';
+
+    try {
+        const response = await fetch('/api/settings/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+            credentials: 'include'
+        });
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const result = await response.json();
+            if (result.success) {
+                resultDiv.className = 'alert alert-success';
+                resultDiv.textContent = result.message;
+            } else {
+                resultDiv.className = 'alert alert-danger';
+                resultDiv.textContent = result.message;
+            }
+            resultDiv.style.display = 'block';
+        } else {
+            // HTML qaytdi, ehtimol login page, shunchaki redirect qilamiz
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        resultDiv.className = 'alert alert-danger';
+        resultDiv.textContent = 'Xatolik yuz berdi: ' + error.message;
+        resultDiv.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        icon.className = 'fas fa-save me-2';
+        text.textContent = 'Saqlash';
+    }
+});
+</script>
